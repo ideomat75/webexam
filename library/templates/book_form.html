@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{% if action == 'add' %}Добавить книгу{% else %}Редактировать книгу{% endif %}{% endblock %}
+{% block content %}
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h2 class="h4 mb-0">
+                            {% if action == 'add' %}
+                                <i class="bi bi-book-plus text-primary"></i> Добавить книгу
+                            {% else %}
+                                <i class="bi bi-pencil-square text-warning"></i> Редактировать книгу
+                            {% endif %}
+                        </h2>
+                    </div>
+
+                    <div class="card-body">
+                        {% with errors = form.errors %}
+                            {% if errors %}
+                                <div class="alert alert-danger border-0 rounded-3 mb-4" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    Исправьте следующие ошибки:
+                                    <ul class="mb-0 ps-4">
+                                        {% for field_name, field_errors in errors.items() %}
+                                            <li><strong>{{ form[field_name].label.text }}</strong>:
+                                                {% for error in field_errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" enctype="multipart/form-data" class="needs-validation{% if errors %} was-validated{% endif %}">
+                            {{ form.hidden_tag() }}
+
+                            <div class="row g-3">
+                                <!-- Название книги -->
+                                <div class="col-md-12">
+                                    {{ form.title.label(class="form-label fw-semibold") }}
+                                    {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.title.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Год издания -->
+                                <div class="col-md-6">
+                                    {{ form.year.label(class="form-label fw-semibold") }}
+                                    {{ form.year(class="form-control" + (" is-invalid" if form.year.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.year.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Например: 2025</small>
+                                </div>
+
+                                <!-- Количество страниц -->
+                                <div class="col-md-6">
+                                    {{ form.pages.label(class="form-label fw-semibold") }}
+                                    {{ form.pages(class="form-control" + (" is-invalid" if form.pages.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.pages.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    <small class="text-muted">Минимум 1 страница</small>
+                                </div>
+
+                                <!-- Автор -->
+                                <div class="col-md-6">
+                                    {{ form.author.label(class="form-label fw-semibold") }}
+                                    {{ form.author(class="form-control" + (" is-invalid" if form.author.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.author.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Издательство -->
+                                <div class="col-md-6">
+                                    {{ form.publisher.label(class="form-label fw-semibold") }}
+                                    {{ form.publisher(class="form-control" + (" is-invalid" if form.publisher.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.publisher.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Описание -->
+                                <div class="col-md-12">
+                                    {{ form.description.label(class="form-label fw-semibold") }}
+                                    <small class="text-muted">(поддерживает форматирование Markdown)</small>
+                                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else "")) }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.description.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Обложка -->
+                                {% if action == 'add' %}
+                                    <div class="col-md-12 mt-3">
+                                        {{ form.cover.label(class="form-label fw-semibold") }}
+                                        {{ form.cover(class="form-control" + (" is-invalid" if form.cover.errors else "")) }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.cover.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        <small class="form-text text-muted">Поддерживаются форматы: jpg, jpeg, png, gif</small>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Жанры -->
+                                <div class="col-md-12 mt-3">
+                                    {{ form.genres.label(class="form-label fw-semibold") }}
+                                    {{ form.genres(class="form-select", multiple="multiple", size="5") }}
+                                    <small class="form-text text-muted d-block mt-1">Удерживайте Ctrl для множественного выбора</small>
+                                </div>
+                            </div>
+
+                            <!-- Кнопки управления -->
+                            <div class="d-flex gap-3 mt-4 pt-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    {% if action == 'add' %}
+                                        <i class="bi bi-save me-1"></i>Сохранить книгу
+                                    {% else %}
+                                        <i class="bi bi-save me-1"></i>Сохранить изменения
+                                    {% endif %}
+                                </button>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Отменить
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% block form_scripts %}
+    <script>
+        // Инициализация Markdown редактора
+        if (document.getElementById("description")) {
+            new EasyMDE({
+                element: document.getElementById("description"),
+                toolbar: ["bold", "italic", "strikethrough", "|",
+                         "heading-1", "heading-2", "heading-3", "|",
+                         "unordered-list", "ordered-list", "|",
+                         "link", "image", "|",
+                         "preview", "side-by-side", "fullscreen"],
+                status: false,
+                autosave: {
+                    enabled: true,
+                    delay: 1000,
+                },
+                promptTexts: {
+                    image: "Изображение",
+                    link: "Ссылка"
+                }
+            });
+        }
+
+        // Добавление стилей для инвалидных полей
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".form-control").forEach(function(input) {
+                input.addEventListener("invalid", function(e) {
+                    e.target.classList.add("is-invalid");
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+{% endblock %}

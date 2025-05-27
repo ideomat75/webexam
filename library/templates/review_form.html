@@ -1,0 +1,36 @@
+<!-- templates/review_form.html -->
+{% extends "base.html" %}
+{% block title %}Оставить рецензию{% endblock %}
+{% block content %}
+    <div class="container py-4">
+        <h2 class="h4 fw-bold mb-4">Оставить рецензию</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Оценка -->
+            <div class="mb-3">
+                {{ form.rating.label(class="form-label") }}
+                {{ form.rating(class="form-select") }}
+                {% for error in form.rating.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Текст рецензии -->
+            <div class="mb-3">
+                {{ form.text.label(class="form-label") }}
+                <textarea id="description" name="text" class="form-control" rows="10">{{ form.text.data or '' }}</textarea>
+                {% for error in form.text.errors %}
+                    <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">Отправить рецензию</button>
+                <a href="{{ url_for('book_detail', book_id=book_id) }}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

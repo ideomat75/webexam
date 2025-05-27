@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+    <div class="container py-4">
+        <h1 class="h3 fw-bold mb-4">📊 Статистика</h1>
+
+        <ul class="nav nav-tabs mb-4" id="statsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="actions-tab"
+                        data-bs-toggle="tab" data-bs-target="#actions"
+                        type="button" role="tab" aria-controls="actions"
+                        aria-selected="true">
+                    Журнал действий
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="book-stats-tab"
+                        data-bs-toggle="tab" data-bs-target="#book_stats"
+                        type="button" role="tab" aria-controls="book_stats"
+                        aria-selected="false">
+                    Статистика просмотров
+
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="statsTabsContent">
+            <div class="tab-pane fade show active" id="actions" role="tabpanel">
+                {% include "stats_actions.html" %}
+            </div>
+            <div class="tab-pane fade" id="book_stats" role="tabpanel">
+                {% include "stats_books.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

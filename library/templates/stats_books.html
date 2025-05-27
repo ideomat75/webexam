@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Статистика просмотров{% endblock %}
+{% block content %}
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 fw-bold">📈 Статистика просмотров</h2>
+            <a href="{{ url_for('export_csv', export_type='book_stats') }}"
+               class="btn btn-success d-flex align-items-center">
+                <i class="bi bi-filetype-csv me-2"></i>Экспорт в CSV
+            </a>
+        </div>
+
+        <!-- Форма фильтрации -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <form method="GET" class="row g-3">
+                    <input type="hidden" name="tab" value="book_stats">
+
+                    <div class="col-md-4">
+                        <label for="dateFrom" class="form-label">Дата от</label>
+                        <input type="date" name="date_from" id="dateFrom"
+                               class="form-control"
+                               value="{{ date_from or '' }}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="dateTo" class="form-label">Дата до</label>
+                        <input type="date" name="date_to" id="dateTo"
+                               class="form-control"
+                               value="{{ date_to or '' }}">
+                    </div>
+
+                    <div class="col-md-4 align-self-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel me-2"></i>Применить фильтр
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Таблица статистики -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Название книги</th>
+                        <th>Просмотры</th>
+                        <th>Средняя оценка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, (book_id, title, views) in enumerate(stats.items, start=1 + (stats.page - 1)*stats.per_page) %}
+                        {% set book = Book.query.get(book_id) %}
+                        <tr>
+                            <td>{{ i }}</td>
+                            <td>
+                                <a href="{{ url_for('book_detail', book_id=book_id) }}"
+                                   class="text-decoration-none">
+                                    {{ title }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-info"
+                                         role="progressbar"
+                                         style="width: {% if stats.total > 0 %}{{ (book.views / max_views * 100)|int }}%{% else %}0%{% endif %}"
+                                         aria-valuenow="{{ book.views }}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="{{ max_views }}">
+                                        {{ book.views }}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% set reviews = book.reviews %}
+                                {% if reviews %}
+                                    {% set rating = reviews|map(attribute='rating')|sum / reviews|length %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            {% for i in range(1, 6) %}
+                                                {% if i <= (rating|int) %}
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                {% else %}
+                                                    <i class="bi bi-star text-warning"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span class="fw-bold">{{ "%.1f"|format(rating) }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Нет оценок</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Пагинация -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if stats.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('stats', tab='book_stats', page=stats.prev_num) }}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for p in stats.iter_pages() %}
+                    {% if p %}
+                        <li class="page-item {% if p == stats.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('stats', tab='book_stats', page=p) }}">
+                                {{ p }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if stats.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('stats', tab='book_stats', page=stats.next_num) }}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

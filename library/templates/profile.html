@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+    <div class="container py-4">
+        <h2 class="h3 fw-bold mb-4">Профиль пользователя</h2>
+
+        <!-- Информация о пользователе -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ user.get_full_name() }}</h5>
+                <p class="card-text">
+                    <strong>Логин:</strong> {{ user.username }}<br>
+                    <strong>Роль:</strong> {{ user.role.name }}<br>
+                    <strong>Дата регистрации:</strong>
+                    {% if user.created_at %}
+                        {{ user.created_at.strftime('%Y-%m-%d') }}
+                    {% else %}
+                        Неизвестно
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Недавно просмотренные книги -->
+        {% if recent_views %}
+            <h3 class="h5 fw-bold mb-3">Недавно просмотренные книги</h3>
+            <div class="row g-3">
+                {% for view in recent_views %}
+                    {% set book = view.book %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 hover-lift">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ book.title }}</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">Автор: {{ book.author }}</small><br>
+                                    <small class="text-muted">Жанры:
+                                        {% for genre in book.genres %}
+                                            {{ genre.name }}{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </small>
+                                </p>
+                                <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-sm btn-info">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

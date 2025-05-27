@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Вход в систему{% endblock %}
+{% block content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Вход</h3>
+                    </div>
+
+                    <div class="card-body p-4">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category if category in ['success', 'danger', 'warning'] else 'info' }} alert-dismissible fade show"
+                                     role="alert">
+                                    {% if 'error' in message.lower() %}
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    {% else %}
+                                        <i class="bi bi-info-circle-fill me-1"></i>
+                                    {% endif %}
+                                    <strong>{{ message }}</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endwith %}
+
+                        <form method="POST" class="needs-validation" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <div class="mb-3">
+                                {{ form.username.label(class="form-label fw-semibold") }}
+                                {{ form.username(class="form-control form-control-lg" + (" is-invalid" if form.username.errors else ""), placeholder="Введите ваш логин") }}
+
+                                <div class="invalid-feedback">
+                                    {% for error in form.username.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.password.label(class="form-label fw-semibold") }}
+                                {{ form.password(class="form-control form-control-lg" + (" is-invalid" if form.password.errors else ""), placeholder="Введите пароль") }}
+
+                                <div class="invalid-feedback">
+                                    {% for error in form.password.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    {{ form.remember_me(class="form-check-input") }}
+                                    {{ form.remember_me.label(class="form-check-label fw-semibold") }}
+                                </div>
+
+                                <a href="#" class="text-decoration-none">Забыли пароль?</a>
+                            </div>
+
+                            <button type="submit" class="btn btn-lg btn-primary w-100">
+                                Войти
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card-footer bg-light text-center py-3">
+                        <p class="mb-0 text-muted">Демонстрационные учетные данные:</p>
+                        <p class="mb-0 small">
+                            <strong>Администратор:</strong> superadmin / NewAdminPass123<br>
+                            <strong>Пользователь:</strong> reader_user / UserRead456
+                            <strong>Модератор:</strong> moderator2024 / ModerPass!2024
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

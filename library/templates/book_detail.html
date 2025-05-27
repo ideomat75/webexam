@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% from "macros/book_macros.html" import render_book_card %}
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ book.title|truncate(30) }}</li>
+        </ol>
+    </nav>
+    <div class="card-footer bg-white">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+                <i class="bi bi-eye"></i> Просмотров: {{ book.view_count }}  <!-- Исправлено на view_count -->
+            </span>
+        </div>
+    </div>
+    <!-- Основная информация о книге -->
+    <div class="row g-4">
+        <!-- Обложка и метаданные -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                {% if book.cover %}
+                <img src="{{ url_for('static', filename='covers/' + book.cover.filename) }}"
+                     class="card-img-top"
+                     alt="{{ book.title }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                     style="height: 400px;">
+                    Нет обложки
+                </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <div class="mb-3">
+                        {% for genre in book.genres %}
+                        <span class="badge bg-secondary">{{ genre.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <dl class="row small">
+                        <dt class="col-sm-5">Автор:</dt>
+                        <dd class="col-sm-7">{{ book.author }}</dd>
+
+                        <dt class="col-sm-5">Год издания:</dt>
+                        <dd class="col-sm-7">{{ book.year }}</dd>
+
+                        <dt class="col-sm-5">Издательство:</dt>
+                        <dd class="col-sm-7">{{ book.publisher }}</dd>
+
+                        <dt class="col-sm-5">Страниц:</dt>
+                        <dd class="col-sm-7">{{ book.pages }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Описание и рецензии -->
+        <div class="col-md-8">
+            <!-- Описание -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-subtitle mb-3">Описание</h5>
+                    <div class="markdown-body">
+                        {{ markdown(book.description)|safe }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Рецензии -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-subtitle mb-3">Рецензии</h5>
+
+                    {% if current_user.is_authenticated %}
+                        {% if not user_review %}
+                        <a href="{{ url_for('add_review', book_id=book.id) }}"
+                           class="btn btn-primary mb-3">
+                            <i class="bi bi-pencil-square"></i> Написать рецензию
+                        </a>
+                        {% else %}
+                        <div class="alert alert-info">
+                            Вы уже оставили рецензию на эту книгу
+                        </div>
+                        {% endif %}
+                    {% endif %}
+
+                    {% for review in book.reviews %}
+                    <div class="review mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>
+                                <strong>{{ review.user.get_full_name() }}</strong>
+                                <span class="text-warning ms-2">
+                                    ★ {{ review.rating }}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                {{ review.created_at.strftime('%d.%m.%Y %H:%M') }}
+                            </small>
+                        </div>
+                        <div class="markdown-body small">
+                            {{ markdown(review.text)|safe }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-muted">
+                        Пока нет рецензий. Будьте первым!
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Похожие книги -->
+    {% if related_books %}
+    <div class="mt-5">
+        <h5 class="mb-3">Похожие книги</h5>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in related_books %}
+            {{ render_book_card(book, current_user) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
